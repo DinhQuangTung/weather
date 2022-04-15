@@ -1,20 +1,54 @@
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View, SafeAreaView, Image } from 'react-native';
 
 export default function App() {
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const bgImg = require('./assets/bg.png')
+
+  const getWeather = async () => {
+    try {
+      const response = await fetch('https://api.weatherapi.com/v1/current.json?key=17bc6b7b0ac14c7aa5361629221404&q=Hanoi&aqi=yes')
+      const json = await response.json();
+      setData(json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getWeather();
+  });
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <SafeAreaView style={{ flex: 1 }}>
       <StatusBar style="auto" />
-    </View>
+      <ImageBackground style={styles.container} source={bgImg}>
+        <View style={{ justifyContent: 'center', display: 'flex', alignItems: 'center', marginTop: 10 }}>
+          <Text style={{ color: '#fff', fontSize: 40, fontWeight: 'bold' }}>weather</Text>
+          <Text style={styles.component}>City: {data.location.name}</Text>
+          <Text style={styles.component}>country: {data.location.country}</Text>
+          <Text style={styles.component}>temp_c: {data.current.temp_c}</Text>
+          <Text style={styles.component}>temp_f: {data.current.temp_f}</Text>
+          <Text style={styles.component}>wind_mph: {data.current.wind_mph}</Text>
+          <Text style={styles.component}>wind_kph: {data.current.wind_kph}</Text>
+          <Text style={styles.component}>wind_degree: {data.current.wind_degree}</Text>
+          <Text style={styles.component}>Cloud: {data.current.cloud} %</Text>
+        </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
+  component: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '500',
+  }
 });
